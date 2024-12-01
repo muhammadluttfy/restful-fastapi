@@ -17,7 +17,7 @@ class PaymentMethod(str, Enum):
     CASH = "CASH"
     NON_CASH = "NON_CASH"
 
-class InputTransaction(BaseModel):
+class Transaction(BaseModel):
     payment_type: PaymentType
     amount: int
     notes: Optional[str] = None
@@ -28,7 +28,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client.get_database("dev_restful-fastapi")
 transactions = db.get_collection("transactions")
 
-# Fungsi untuk mengonversi dokumen MongoDB menjadi format yang dapat di-serialize
+# Konversi id menjadi format yang dapat di-serialize (objectId to string)
 def serialize_document(doc):
     if doc is not None:
         doc['_id'] = str(doc['_id'])
@@ -65,7 +65,7 @@ def get_transaction(transaction_id: str):
 
 # Create Transaction
 @app.post("/transaction")
-def create_transaction(input_transaction: InputTransaction):
+def create_transaction(input_transaction: Transaction):
     new_transaction = input_transaction.dict()
     new_transaction["_id"] = ObjectId()
     transactions.insert_one(new_transaction)
